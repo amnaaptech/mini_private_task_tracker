@@ -1,0 +1,138 @@
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+
+const Register = () => {
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (
+      !formData.username ||
+      !formData.email ||
+      !formData.password
+    ) {
+      alert("Please fill all fields.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/signup",
+        formData
+      );
+
+      alert(response.data.message);
+
+      navigate("/login");
+    } catch (error) {
+      alert(error.response?.data?.message || "Registration Failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div
+      className="container d-flex justify-content-center align-items-center"
+      style={{ minHeight: "100vh" }}
+    >
+      <div
+        className="card shadow-lg p-4"
+        style={{
+          width: "430px",
+          borderRadius: "15px",
+        }}
+      >
+        <h2 className="text-center mb-4 text-primary">
+          Create Account
+        </h2>
+
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label className="form-label">
+              Username
+            </label>
+
+            <input
+              type="text"
+              name="username"
+              className="form-control"
+              placeholder="Enter username"
+              value={formData.username}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="mb-3">
+            <label className="form-label">
+              Email
+            </label>
+
+            <input
+              type="email"
+              name="email"
+              className="form-control"
+              placeholder="Enter email"
+              value={formData.email}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="form-label">
+              Password
+            </label>
+
+            <input
+              type="password"
+              name="password"
+              className="form-control"
+              placeholder="Enter password"
+              value={formData.password}
+              onChange={handleChange}
+            />
+          </div>
+
+          <button
+            className="btn btn-primary w-100"
+            disabled={loading}
+          >
+            {loading ? "Registering..." : "Register"}
+          </button>
+        </form>
+
+        <p className="text-center mt-3">
+          Already have an account?
+
+          <Link
+            to="/login"
+            className="text-decoration-none ms-2"
+          >
+            Login
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default Register;
